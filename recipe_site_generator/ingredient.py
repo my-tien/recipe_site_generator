@@ -44,12 +44,12 @@ class Ingredient:
 			if divmod(self.amount, 0.5)[1] == 0:
 				return self.amount, 'TL', self.name
 			else:
-				return Ingredient(self.amount*5, 'ml', self.name).h()
+				return Ingredient(name=self.name, amount=self.amount*5, unit='ml').h()
 		elif self.unit == 'EL':
 			if divmod(self.amount, 0.5)[1] == 0:
 				return self.amount, 'EL', self.name
 			else:
-				return Ingredient(self.amount*15, 'ml', self.name).h()
+				return Ingredient(name=self.name, amount=self.amount*15, unit='ml').h()
 		elif isinstance(self.unit, str):
 			return self.amount, self.unit, self.name
 		elif self.unit is None:

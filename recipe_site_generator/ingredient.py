@@ -53,6 +53,6 @@ class Ingredient:
 		elif isinstance(self.unit, str):
 			return self.amount, self.unit, self.name
 		elif self.unit is None:
-			return (self.name,) if self.amount is None else (self.amount, '', self.name)
+			return (None, '', self.name) if self.amount is None else (self.amount, '', self.name)
 		else:
 			raise ValueError(f'Don’t know how to print unit {self.unit}')

@@ -7,7 +7,7 @@ from tabulate import tabulate
 import yaml
 
 
-def print_ingredient_list(ingredients: Iterable[Ingredient], amount: float) -> None:
+def print_ingredient_list(ingredients: list, amount: float) -> None:
 	print(tabulate([Ingredient.create(ing, amount).h() for ing in ingredients], tablefmt='simple', floatfmt='.3g'))
 
 

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Optional
 
 from recipe_site_generator import custom
 from recipe_site_generator.ingredient import Ingredient
@@ -11,7 +11,7 @@ def print_ingredient_list(ingredients: list, amount: float) -> None:
 	print(tabulate([Ingredient.create(ing, amount).h() for ing in ingredients], tablefmt='simple', floatfmt='.3g'))
 
 
-def print_recipe(head: str, instructions: str, image_url_path: str = None, multiply_handler: Callable[[str], float] = custom.handle_multiplier) -> None:
+def print_recipe(head: str, instructions: str, image_url_path: Optional[str] = None, additional_image_url_paths: Optional[dict[str, str]] = None, multiply_handler: Callable[[str], float] = custom.handle_multiplier) -> None:
 	if 'amount' in os.environ['QUERY_STRING']:
 		print('10 Please enter an amount factor:\r\n')
 		exit(0)
@@ -28,6 +28,9 @@ def print_recipe(head: str, instructions: str, image_url_path: str = None, multi
 
 	if image_url_path is not None and os.path.exists(f'{custom.spacebeans_root}/{image_url_path}'):
 		print(f'=> {image_url_path} An image of {recipe["title"]}\n')
+
+	for title, image_url_path in (additional_image_url_paths or {}).items():
+		print(f'=> {image_url_path} {title}\n')
 
 	amount = multiply_handler(os.environ['QUERY_STRING'])
 

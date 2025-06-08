@@ -14,7 +14,7 @@ I was in search of a way to write down my recipes that is not more time-consumin
 # Setup
 1. Setup a spacebeans server
 2. Download this github repository
-3. Customize spacebeans_root, back_button and handle_multiplier in custom.py
+3. Customize recipe_root, back_button and handle_multiplier in custom.py
 4. Write your recipes
 
 # Writing a recipe

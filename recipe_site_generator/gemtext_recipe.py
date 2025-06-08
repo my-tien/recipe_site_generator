@@ -26,7 +26,7 @@ def print_recipe(head: str, instructions: str, image_url_path: Optional[str] = N
 	if 'story' in recipe:
 		print(recipe['story'] + '\n')
 
-	if image_url_path is not None and os.path.exists(f'{custom.spacebeans_root}/{image_url_path}'):
+	if image_url_path is not None and os.path.exists(f'{custom.recipe_root}/{image_url_path}'):
 		print(f'=> {image_url_path} An image of {recipe["title"]}\n')
 
 	for title, image_url_path in (additional_image_url_paths or {}).items():

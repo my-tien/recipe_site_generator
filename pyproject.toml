@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "recipe-site-generator"
+name = "recipe_site_generator"
 version = "1.0"
 description = "Generates browser documents from input recipe files"
 authors = ["My-Tien Nguyen <my-tien@mails.taipei>"]

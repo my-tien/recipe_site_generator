@@ -158,3 +158,11 @@ oven_instructions: 160°C Umluft, 30 Minuten
 * Muffins mit einer leichten Drehbewegung aus dem Muffinblech herauslösen.
 
 ```
+
+### Example gemini output
+
+![Gemini output](example-gemini.png)
+
+### Example HTML output
+
+![HTML output](example-html.png)

@@ -9,12 +9,14 @@ from recipe_site_generator.util import collect_recipes, Recipe
 
 
 def main():
-    parser = argparse.ArgumentParser("""Generate gemini or HTML recipe pages from input markdown files (default: gemini).""")
-    parser.add_argument("recipe_folder",
+    parser = argparse.ArgumentParser(
+        prog="recipe_site_generator",
+        description="Generate gemini or HTML recipe pages from input markdown files (default: gemini).")
+    parser.add_argument("INPUT_RECIPE_FOLDER",
         type=Path,
         default=Path.cwd(),
         help="Input root folder of markdown recipe files.")
-    parser.add_argument("image_folder",
+    parser.add_argument("INPUT_IMAGE_FOLDER",
         type=Path,
         default=Path.cwd(),
         help="Input root folder of recipe images."
@@ -22,6 +24,7 @@ def main():
     parser.add_argument("--out",
         type=Path,
         default=None,
+        metavar="OUTPUT_FOLDER",
         help="Output folder for recipe files. By default subfolder 'gemini' or 'html' in the input folder."
     )
     parser.add_argument("--overwrite",
@@ -35,8 +38,8 @@ def main():
     )
 
     args = parser.parse_args()
-    input_recipe_folder: Path = args.recipe_folder
-    input_image_folder: Path = args.image_folder
+    input_recipe_folder: Path = args.INPUT_RECIPE_FOLDER
+    input_image_folder: Path = args.INPUT_IMAGE_FOLDER
     output_folder: Path = args.out
     overwrite: bool = args.overwrite
 

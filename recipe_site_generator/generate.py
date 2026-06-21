@@ -4,11 +4,12 @@ import shutil
 import traceback
 
 from recipe_site_generator.gemtext_writer import write_gemini_index, write_gemini_recipe
+from recipe_site_generator.html_writer import write_html_index, write_html_recipe
 from recipe_site_generator.util import collect_recipes, Recipe
 
 
 def main():
-    parser = argparse.ArgumentParser("""Generate gemini recipe pages from input markdown files.""")
+    parser = argparse.ArgumentParser("""Generate gemini or HTML recipe pages from input markdown files (default: gemini).""")
     parser.add_argument("recipe_folder",
         type=Path,
         default=Path.cwd(),
@@ -21,11 +22,16 @@ def main():
     parser.add_argument("--out",
         type=Path,
         default=None,
-        help="Output folder for recipe files. By default subfolder 'gemini' in the input folder."
+        help="Output folder for recipe files. By default subfolder 'gemini' or 'html' in the input folder."
     )
     parser.add_argument("--overwrite",
         action="store_true",
         help="Whether to overwrite the output folder if it already exists."
+    )
+    parser.add_argument("--html",
+        action="store_true",
+        default=None,
+        help="Generate HTML instead of gemini files"
     )
 
     args = parser.parse_args()
@@ -35,7 +41,10 @@ def main():
     overwrite: bool = args.overwrite
 
     write_recipe = write_gemini_recipe
-    write_index = write_gemini_index 
+    write_index = write_gemini_index
+    if args.html:
+        write_recipe = write_html_recipe
+        write_index = write_html_index    
 
     if not input_recipe_folder.exists():
         raise ValueError(f"The provided input folder doesn't exist: {input_recipe_folder}")
@@ -43,7 +52,8 @@ def main():
         raise ValueError(f"The provided input folder doesn't exist: {input_image_folder}")
 
     if not output_folder:
-        output_folder = input_recipe_folder / "gemini"
+        subfolder = "html" if args.html else "gemini"
+        output_folder = input_recipe_folder / subfolder
 
     recipe_root = output_folder.absolute().name
     recipe_folders = collect_recipes(input_recipe_folder)

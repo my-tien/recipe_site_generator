@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang='de-DE'>
+
+<head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width' />
+    <title>{{ title }}</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            color: #242424;
+            font-family: sans-serif;
+            line-height: 1.6;
+            padding: 2rem 4rem;
+        }
+
+        .container {
+            max-width: 99ch;
+        }
+
+        .container > img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .container > * + * {
+            margin-top: 1rem;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #8f5902;
+            margin-top: 2rem;
+        }
+        
+        table {
+            border-collapse: collapse;
+        }
+        table td:first-of-type {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        table td:last-of-type {
+            border-left: 1px solid #8f5902;
+            padding-left: 1rem;
+        }
+
+        table td {
+            padding: 0.5rem 1rem;
+        }
+
+        table tr:nth-of-type(2n) {
+            background-color: #e9b96e;
+        }
+
+        ul {
+            list-style: square;
+            margin-left: 36px;
+        }
+        ul > li + li {
+            margin-top: 0.5rem;
+        }
+
+        hr {
+            background-color: #e9b96e;
+            border: 0;
+            height: 2px;
+            margin-top: 2rem;
+        }
+
+        a {
+            color: #8f5902;
+            text-decoration: none;
+            border-bottom: 2px dashed #e9b96e;
+        }
+
+        a:hover {
+            border-bottom-color: #8f5902;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <p>
+    <a href="../index.html">Close the book.</a>
+    </p>
+
+    <h1>{{ title }}</h1>
+    <p>{{ story }}</p>
+
+    {% if image %}
+    <img src="{{ image }}" alt="Image of {{ title }}" />
+    {% endif %}
+
+    <h2>Zutaten (Menge ×<span id="MultiplicatorText">1</span>)</h2>
+    <p>Gib die gewünschte Menge an:</p>
+    <p>
+        <label for="amount">Mengen-Multiplikator:</label>
+        <input type="number" id="amountInput" name="amount" min="0" step="0.5" value="1" />
+    </p>
+
+    {% macro printIngredient(ingredient) %}
+        {% set n = ingredient|length %}
+        {% if n == 1 %}
+            <tr>
+                <td class="ingredient-amount" amount=''></td>
+                <td class="ingredient-unit" unit=''></td>
+                <td>{{ ingredient[0] }}</td>
+            </tr>
+        {% elif n == 2 %}
+            <tr>
+                <td class="ingredient-amount" amount='{{ingredient[0]}}'></td>
+                <td class="ingredient-unit" unit=''></td>
+                <td>{{ ingredient[1] }}</td>
+            </tr>
+        {% elif n == 3 %}
+            <tr>
+                <td class="ingredient-amount" amount='{{ ingredient[0] }}'></td>
+                <td class="ingredient-unit" unit='{{ ingredient[1] }}'></td>
+                <td>{{ ingredient[2] }}</td>
+            </tr>
+        {% else %}
+            <tr><td>ERROR! Length of list {{ n }}</td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+        {% endif %}
+    {% endmacro %}
+
+    {% if ingredients is mapping %}
+        {% for section, ingredients in ingredients.items() %}
+            <h3>{{ section }}</h3>
+            <table>
+                {% for ingredient in ingredients %}
+                    {{ printIngredient(ingredient) }}
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% else %}
+        <table>
+        {% for ingredient in ingredients %}
+            {{ printIngredient(ingredient) }}
+        {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if tools %}
+        <h2>Utensilien</h2>
+        <ul>
+            {% for tool in tools %}
+                <li>{{ tool }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if oven_instructions %}
+        <h2>Ofeneinstellung</h2>
+        <p>⏲ {{ oven_instructions }}</p>
+    {% endif %}
+
+    <hr>
+
+    {{ instructions | markdown | safe }}
+
+    <p>
+    <a href="../index.html">Close the book.</a>
+    </p>
+</div>
+</body>
+<script>
+    const multiplicatorInput = document.querySelector('#amountInput');
+    const multiplicatorText = document.querySelector('#MultiplicatorText');
+    const ingredientAmountTds = document.querySelectorAll('.ingredient-amount');
+    const ingredientUnitTds = document.querySelectorAll('.ingredient-unit');
+    
+    function updateMultiplicators() {
+        const multiplicator = Number(multiplicatorInput.value || 1);
+        
+        multiplicatorText.textContent = multiplicator;
+
+        ingredientAmountTds.forEach((amountTd, idx) => {
+            const result = getMultipliedIngredient(idx, multiplicator);
+            amountTd.textContent = result.amount;
+            ingredientUnitTds[idx].textContent = result.unit;
+        });
+    }
+
+    function getMultipliedIngredient(idx, multiplicator) {
+        if (idx >= ingredientAmountTds.length || idx >= ingredientUnitTds.length) {
+            console.error(
+                `Requested convertAmount for out-of-bounds index ${idx}. Max index: ${ingredientAmountTds.length - 1}`
+            );
+            return;
+        }
+        const amountText = ingredientAmountTds[idx].attributes['amount']?.value || '';
+        const unit = ingredientUnitTds[idx].attributes['unit']?.value || '';
+        if (amountText.length == 0) {
+            return {"amount": amountText, "unit": unit};
+        }
+        const amount = Number(amountText) * multiplicator;
+        const result = getHumanReadableAmount(amount, unit);
+        if (typeof result.amount === 'number') {
+            result.amount = result.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+        return result;
+    }
+
+    function getHumanReadableAmount(amount, unit) {
+        if (unit === 'g') {
+            if (amount < 0.1) {
+				return {"amount": amount*1000, "unit": 'mg'};
+            }
+			else if(amount < 1000) {
+				return {"amount": amount, "unit": 'g'};
+            }
+			else {
+				return {"amount": amount/1000, "unit": 'kg'};
+            }
+        }
+		else if (unit === 'ml') {
+			if (amount < 1000) {
+				return {"amount": amount, "unit": 'ml'};
+            }
+			else {
+				return {"amount": amount/1000, "unit": 'L'};
+            }
+        }
+		else if (unit === 'TL') {
+            if (amount % 0.25 === 0) {
+                return {"amount": amount, "unit": 'TL'};
+            }
+            else {
+                return getHumanReadableAmount(amount*5, 'ml');
+            }
+        }
+		else if (unit === 'EL') {
+            if (amount % 0.25 === 0) {
+                return {"amount": amount, "unit": 'EL'};
+            }
+			else {
+                return getHumanReadableAmount(amount*15, 'ml');
+            }
+        }
+		else {
+            return {"amount": amount, "unit": unit};
+        }
+    };
+    
+    let debounceTimeout;
+    multiplicatorInput.addEventListener('input', (event) => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => updateMultiplicators(), 500);
+    });
+
+    // fill initial values
+    updateMultiplicators();
+</script>
+</html>

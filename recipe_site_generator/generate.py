@@ -89,7 +89,10 @@ def main():
     
     write_index(output_folder, abouts, recipes, recipe_root)
 
-    shutil.copytree(str(input_image_folder), str(output_folder / "images"), dirs_exist_ok=overwrite)
+    input_image_folder = str(input_image_folder)
+    output_image_folder = str(output_folder / "images")
+    if input_image_folder != output_image_folder:
+        shutil.copytree(input_image_folder, output_image_folder, dirs_exist_ok=overwrite)
 
 
 if __name__ == '__main__':
